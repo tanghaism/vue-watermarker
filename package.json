@@ -23,7 +23,7 @@
   },
   "dependencies": {
     "vue": "^3.2.6",
-    "vue-watermarker": "^0.0.3"
+    "vue-watermarker": "^0.0.4"
   },
   "devDependencies": {
     "@babel/core": "^7.15.5",
