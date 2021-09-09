@@ -1,6 +1,6 @@
 # vue-watermarker
 
-[English](../) | 中文
+[English](https://github.com/tanghaism/vue-watermarker) | 中文
 
 在你的网站上覆盖水印，不可删除，不可篡改
 
