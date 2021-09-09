@@ -1,5 +1,5 @@
 <script lang="ts">
-import { defineComponent, PropType, App, createApp, toRefs, watchEffect, ref, onBeforeUnmount } from 'vue';
+import { defineComponent, PropType, App, createApp, toRefs, watch } from 'vue';
 import WaterMarker from './WaterMarker.vue'
 export default defineComponent({
   props: {
@@ -36,10 +36,6 @@ export default defineComponent({
 
     const { visible, content, styleOption, refresh, target, width, height } = toRefs(props);
 
-    const _row = Math.ceil(screen.width / height.value);
-    const _col = Math.ceil(screen.height / width.value);
-    let markerNumber = _row * _col;
-
     let app: App;
     let comp: any;
     let observer: MutationObserver;
@@ -68,7 +64,7 @@ export default defineComponent({
         comp.styleOption = styleOption.value;
         comp.width = width.value;
         comp.height = height.value;
-        comp.markerNumber = markerNumber;
+        comp.markerNumber = Math.ceil(screen.width / height.value) * Math.ceil(screen.height / width.value);
       }
     }
 
@@ -87,7 +83,8 @@ export default defineComponent({
 
     const obverseFunc = () => {
       const obverseConfig = { childList: true };
-      if(!observer) {
+
+      if(!observer){
         // 当观察到变动时执行的回调函数
         const callback = async function(mutationsList: MutationRecord[]) {
           for(const record of mutationsList){
@@ -107,6 +104,7 @@ export default defineComponent({
         observer = new MutationObserver(callback);
       }
 
+
       // 以上述配置开始观察目标节点
       observer.observe(parentNode, obverseConfig);
     }
@@ -116,8 +114,14 @@ export default defineComponent({
       createMarker();
     }
 
-    watchEffect(() => {
+    watch([() => content.value, () => styleOption.value, () => width.value, () => height.value], () => {
       setData();
+    })
+
+    watch(() => visible.value, () => {
+      if(comp){
+        comp.visible = visible.value;
+      }
       if(!visible.value) {
         destroy();
       }else{
