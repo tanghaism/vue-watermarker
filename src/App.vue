@@ -1,7 +1,6 @@
 <script lang="ts">
-import { defineComponent, PropType, App, createApp, toRefs, watchEffect } from 'vue';
+import { defineComponent, PropType, App, createApp, toRefs, watchEffect, ref, onBeforeUnmount } from 'vue';
 import WaterMarker from './WaterMarker.vue'
-import {ComponentPublicInstance} from "@vue/runtime-core";
 export default defineComponent({
   props: {
     visible: {
@@ -33,7 +32,7 @@ export default defineComponent({
       type: [String, Object]
     }
   },
-  setup(props) {
+  setup(props: any) {
 
     const { visible, content, styleOption, refresh, target, width, height } = toRefs(props);
 
@@ -52,9 +51,18 @@ export default defineComponent({
       parentNode = target.value as HTMLElement
     }
 
+    const destroy = () => {
+      observer?.disconnect();
+      app?.unmount();
+      comp = null;
+      const dom = document.querySelector('#vue-water-marker');
+      if(dom){
+        dom?.parentNode?.removeChild(dom);
+      }
+    }
+
     const setData = () => {
       if(comp){
-        console.log(visible.value);
         comp.visible = visible.value;
         comp.content = content.value;
         comp.styleOption = styleOption.value;
@@ -78,30 +86,29 @@ export default defineComponent({
     }
 
     const obverseFunc = () => {
-
-      const config = { childList: true };
-
-      // 当观察到变动时执行的回调函数
-      const callback = async function(mutationsList: MutationRecord[]) {
-        for(const record of mutationsList){
-          const removeList = record.removedNodes;
-          if(removeList?.length > 0){
-            for(const dom of Array.from(removeList)){
-              if((dom as Element).getAttribute('id') === 'vue-water-marker'){
-                app?.unmount();
-                comp = null;
-                createMarker();
+      const obverseConfig = { childList: true };
+      if(!observer) {
+        // 当观察到变动时执行的回调函数
+        const callback = async function(mutationsList: MutationRecord[]) {
+          for(const record of mutationsList){
+            const removeList = record.removedNodes;
+            if(removeList?.length > 0){
+              for(const dom of Array.from(removeList)){
+                if((dom as Element).getAttribute('id') === 'vue-water-marker'){
+                  app?.unmount();
+                  comp = null;
+                  createMarker();
+                }
               }
             }
           }
-        }
-      };
-
-      // 创建一个观察器实例并传入回调函数
-      observer = new MutationObserver(callback);
+        };
+        // 创建一个观察器实例并传入回调函数
+        observer = new MutationObserver(callback);
+      }
 
       // 以上述配置开始观察目标节点
-      observer.observe(parentNode, config);
+      observer.observe(parentNode, obverseConfig);
     }
 
     if(!document.querySelector('#vue-water-marker')){
@@ -111,9 +118,14 @@ export default defineComponent({
 
     watchEffect(() => {
       setData();
+      if(!visible.value) {
+        destroy();
+      }else{
+        createMarker()
+      }
     })
   },
-  render:() => null
+  render: () => null
 })
 </script>
 
@@ -137,6 +149,8 @@ export default defineComponent({
   .vue-water-marker-item{
     padding: 0 20px;
     transform: rotate(-45deg);
+    pointer-events: none;
+    user-select: none;
   }
 }
 </style>

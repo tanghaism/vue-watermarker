@@ -2,16 +2,18 @@
   <div>
     <span
       class="padding"
-    >这是页面内容</span>
+    >This is website content!</span>
   </div>
+
+  <!-- waterMarker -->
   <VueWaterMarker
-    :content="['这是第1行水印', '__这是第2行水印__', '~~~~~这是第三行水印~~~~']"
+    :content="['water marker one', '__water marker two__', '~~~~~water marker three~~~~']"
   />
 </template>
 
 <script lang="ts">
 import {defineComponent} from "vue"
-import VueWaterMarker from '../dist/index'
+import VueWaterMarker from 'vue-watermarker'
 export default defineComponent({
   name: "App",
   components: {

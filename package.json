@@ -22,7 +22,8 @@
     "serve": "vite preview"
   },
   "dependencies": {
-    "vue": "^3.2.6"
+    "vue": "^3.2.6",
+    "vue-watermarker": "^0.0.2"
   },
   "devDependencies": {
     "@babel/core": "^7.15.5",

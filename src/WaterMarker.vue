@@ -16,7 +16,7 @@
 </template>
 
 <script lang="ts">
-import {defineComponent, ref, nextTick, onBeforeUnmount, computed, watch} from "vue"
+import {computed, defineComponent, nextTick, onBeforeUnmount, ref, watch} from "vue"
 
 export default defineComponent({
   name: "WaterMarker",
@@ -26,7 +26,7 @@ export default defineComponent({
       type: Number
     }
   },
-  setup(props){
+  setup(props: { refresh: number }) {
 
     const markerNumber = ref<number>(0);
     const visible = ref<boolean>(true);
@@ -70,8 +70,8 @@ export default defineComponent({
       }
     })
 
-    watch(() => visible.value, (newVal) => {
-      if(newVal){
+    watch(() => visible.value, (newVal: boolean) => {
+      if (newVal) {
         reset.value = true;
         refreshTime && refreshTime();
       } else {
