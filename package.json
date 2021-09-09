@@ -1,6 +1,6 @@
 {
   "name": "vue-watermarker",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "description": "Cover the watermark on your website, which cannot be deleted or tampered with!",
   "main": "dist/index.js",
   "module": "dist/index.js",
