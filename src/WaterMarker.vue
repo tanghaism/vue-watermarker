@@ -17,6 +17,7 @@
 
 <script lang="ts">
 import {computed, defineComponent, nextTick, onBeforeUnmount, ref, watch} from "vue"
+import timerWorker from "./timmerWorker";
 
 export default defineComponent({
   name: "WaterMarker",
@@ -36,25 +37,30 @@ export default defineComponent({
     const styleOption = ref<any>({});
     const reset = ref<boolean>(true);
 
-    let time: any;
-    let refreshTime: any = () => {
-      if(!visible.value){
-        clearTimeout(time)
-        return ;
+    let worker: Worker | null;
+
+    const initWorker = () => {
+      const blob = new Blob(['(' + timerWorker.toString() + ')()']);
+      const url = window.URL.createObjectURL(blob);
+      worker = new Worker(url) as Worker;
+      worker.postMessage({ during: props.refresh || 5000 });
+      worker.onmessage = async ({data}) => {
+        if(data !== 'clear'){
+          reset.value = false;
+          await nextTick();
+          reset.value = true;
+          visible.value && worker?.postMessage({});
+        }else{
+          worker?.terminate()
+        }
       }
-      time = setTimeout(async () => {
-        reset.value = false;
-        await nextTick();
-        reset.value = true;
-        refreshTime && visible.value && refreshTime();
-      }, props.refresh || 5000)
     }
 
-    refreshTime && visible.value && refreshTime();
+    visible.value && initWorker();
 
     onBeforeUnmount(() => {
-      refreshTime = null;
-      clearTimeout(time);
+      worker?.postMessage({type: 'clear'})
+      worker = null;
       reset.value = true;
     })
 
@@ -73,9 +79,14 @@ export default defineComponent({
     watch(() => visible.value, (newVal: boolean) => {
       if (newVal) {
         reset.value = true;
-        refreshTime && refreshTime();
+        if(worker){
+          worker.postMessage({ during: props.refresh || 5000 });
+        }else{
+          initWorker()
+        }
       } else {
-        clearTimeout(time);
+        worker?.postMessage({type: 'clear'})
+        worker = null;
         reset.value = false;
       }
     })
