@@ -1,5 +1,5 @@
 <script lang="ts">
-import { defineComponent, PropType, App, createApp, toRefs, watch } from 'vue';
+import {defineComponent, PropType, App, createApp, toRefs, watch, onMounted, nextTick} from 'vue';
 import WaterMarker from './WaterMarker.vue'
 export default defineComponent({
   props: {
@@ -41,11 +41,6 @@ export default defineComponent({
     let observer: MutationObserver;
 
     let parentNode = document.body as HTMLElement;
-    if(typeof target.value === 'string'){
-      parentNode = document.querySelector(target.value) as HTMLElement
-    }else if(typeof target.value === 'object') {
-      parentNode = target.value as HTMLElement
-    }
 
     const destroy = () => {
       observer?.disconnect();
@@ -91,7 +86,7 @@ export default defineComponent({
             const removeList = record.removedNodes;
             if(removeList?.length > 0){
               for(const dom of Array.from(removeList)){
-                if((dom as Element).getAttribute('id') === 'vue-water-marker'){
+                if(dom && (dom as Element).getAttribute('id') === 'vue-water-marker'){
                   app?.unmount();
                   comp = null;
                   createMarker();
@@ -109,11 +104,6 @@ export default defineComponent({
       observer.observe(parentNode, obverseConfig);
     }
 
-    if(!document.querySelector('#vue-water-marker')){
-      obverseFunc();
-      createMarker();
-    }
-
     watch([() => content.value, () => styleOption.value, () => width.value, () => height.value], () => {
       setData();
     })
@@ -126,6 +116,19 @@ export default defineComponent({
         destroy();
       }else{
         createMarker()
+      }
+    })
+
+    onMounted(async () => {
+      await nextTick();
+      if(typeof target.value === 'string'){
+        parentNode = document.querySelector(target.value) as HTMLElement
+      }else if(typeof target.value === 'object') {
+        parentNode = target.value as HTMLElement
+      }
+      if(!document.querySelector('#vue-water-marker')){
+        obverseFunc();
+        createMarker();
       }
     })
   },

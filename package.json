@@ -1,6 +1,6 @@
 {
   "name": "vue-watermarker",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "Cover the watermark on your website, which cannot be deleted or tampered with!",
   "main": "dist/index.js",
   "module": "dist/index.js",
@@ -23,7 +23,7 @@
   },
   "dependencies": {
     "vue": "^3.2.6",
-    "vue-watermarker": "^0.0.4"
+    "vue-watermarker": "^0.0.5"
   },
   "devDependencies": {
     "@babel/core": "^7.15.5",
