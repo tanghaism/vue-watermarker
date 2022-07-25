@@ -86,7 +86,7 @@ export default defineComponent({
             const removeList = record.removedNodes;
             if(removeList?.length > 0){
               for(const dom of Array.from(removeList)){
-                if(dom && (dom as Element).getAttribute('id') === 'vue-water-marker'){
+                if(dom && (dom as Element)?.getAttribute!('id') === 'vue-water-marker'){
                   app?.unmount();
                   comp = null;
                   createMarker();
